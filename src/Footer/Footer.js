@@ -17,6 +17,7 @@ function Footer({ filter, onFilter, clearComleted, data }) {
       />
     </li>
   ));
+
   const ItemsLeft = data.filter((item) => !item.done).length;
   return (
     <footer className="footer">
