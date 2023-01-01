@@ -10,6 +10,7 @@ function NewTaskForm({ AddItem }) {
         AddItem(val);
         setVal("");
       }}
+      className="new-todo-form"
     >
       <input
         value={val}
@@ -19,6 +20,8 @@ function NewTaskForm({ AddItem }) {
         className="new-todo"
         placeholder="What needs to be done?"
       />
+      <input className="new-todo-form__timer" placeholder="Min" />
+      <input className="new-todo-form__timer" placeholder="Sec" />
     </form>
   );
 }
