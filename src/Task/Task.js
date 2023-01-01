@@ -12,6 +12,11 @@ function Task({ data, onDeleteItem, onDoneToggle }) {
       <input className="toggle" type="checkbox" />
       <label onClick={onDoneToggle}>
         <span className="description">{data.title}</span>
+        <span className="description">
+          <button className="icon icon-play" />
+          <button className="icon icon-pause" />
+          12:25
+        </span>
         <span className="created">{created}</span>
       </label>
       <button className="icon icon-edit" />
