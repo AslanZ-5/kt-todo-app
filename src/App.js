@@ -14,18 +14,21 @@ export default class App extends Component {
         created: "2022-05-11T12:11:32",
         done: false,
         id: 1,
+        timer: 5458,
       },
       {
         title: "Editing task",
         created: "2021-11-11T04:32:33",
         done: false,
         id: 2,
+        timer: 456,
       },
       {
         title: "Active task",
         created: "2020-12-11T01:20:10",
         done: false,
         id: 3,
+        timer: 1020,
       },
     ],
     filter: "all",
@@ -44,7 +47,8 @@ export default class App extends Component {
     });
   };
 
-  onDoneToggle = (id) => {
+  onDoneToggle = (id, e) => {
+    e.preventDefault();
     const { todoData } = this.state;
     const inx = todoData.findIndex((item) => item.id === id);
     const item = todoData[inx];
@@ -66,7 +70,8 @@ export default class App extends Component {
     });
   };
 
-  AddItem = (val) => {
+  AddItem = (val, min, sec) => {
+    const time = Math.floor(Number(sec) + Number(min) * 60);
     const { todoData } = this.state;
     const d = new Date();
     const newItem = {
@@ -74,6 +79,7 @@ export default class App extends Component {
       created: d.toISOString(),
       done: false,
       id: this.genId++,
+      timer: time,
     };
 
     return this.setState({

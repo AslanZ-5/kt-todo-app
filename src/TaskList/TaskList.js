@@ -9,7 +9,15 @@ function TaskList({ data, onDoneToggle, onDeleteItem }) {
       <li key={task.id} className={activeClass}>
         <Task
           onDeleteItem={() => onDeleteItem(task.id)}
-          onDoneToggle={() => onDoneToggle(task.id)}
+          onClickToggle={(e) => {
+            if (e.target.classList[1] === "icon-pause") {
+              console.log("this is icon pause");
+            } else if (e.target.classList[1] === "icon-play") {
+              console.log("this is play button");
+            } else {
+              onDoneToggle(task.id, e);
+            }
+          }}
           data={task}
         />
       </li>
