@@ -102,7 +102,7 @@ export default class App extends Component {
       <div className="App">
         <section className="todoapp">
           <header className="header">
-            <h1>todos</h1>
+            <h1>todos with timer</h1>
             <NewTaskForm AddItem={this.AddItem} />
           </header>
           <section className="main">
