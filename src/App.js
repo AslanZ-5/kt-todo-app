@@ -7,6 +7,8 @@ import NewTaskForm from "./NewTaskForm";
 export default class App extends Component {
   genId = 100;
 
+  timerId = null;
+
   state = {
     todoData: [
       {
@@ -32,6 +34,53 @@ export default class App extends Component {
       },
     ],
     filter: "all",
+    counting: 0,
+  };
+
+  componentDidMount() {
+    const timers = localStorage.getItem("timers");
+    const count = Number(localStorage.getItem("counting"));
+    this.setState({
+      counting: count,
+    });
+    if (count) {
+      this.timerId = setInterval(() => this.onCountDown(count), 1000);
+    }
+    if (timers) {
+      this.setState({
+        todoData: JSON.parse(timers),
+      });
+    }
+    window.addEventListener("beforeunload", () => {
+      const { counting, todoData } = this.state;
+      localStorage.setItem("counting", counting);
+      localStorage.setItem("timers", JSON.stringify(todoData));
+    });
+  }
+
+  componentDidUpdate() {
+    const { counting } = this.state;
+
+    clearInterval(this.timerId);
+    if (counting) {
+      this.timerId = setInterval(() => this.onCountDown(counting), 1000);
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerId);
+  }
+
+  playTimer = (id) => {
+    this.setState({
+      counting: id,
+    });
+  };
+
+  stopTimer = () => {
+    this.setState({
+      counting: 0,
+    });
   };
 
   onFilter = (filter) =>
@@ -44,6 +93,20 @@ export default class App extends Component {
     const newArr = todoData.filter((item) => !item.done);
     return this.setState({
       todoData: newArr,
+    });
+  };
+
+  onCountDown = (id) => {
+    const { todoData } = this.state;
+    const inx = todoData.findIndex((item) => item.id === id);
+    const item = todoData[inx];
+    const newItem = { ...item, timer: item.timer - 1 };
+    return this.setState({
+      todoData: [
+        ...todoData.slice(0, inx),
+        newItem,
+        ...todoData.slice(inx + 1),
+      ],
     });
   };
 
@@ -116,6 +179,8 @@ export default class App extends Component {
               onDoneToggle={this.onDoneToggle}
               data={data}
               onDeleteItem={this.onDeleteItem}
+              playTimer={this.playTimer}
+              stopTimer={this.stopTimer}
             />
             <Footer
               onFilter={this.onFilter}
