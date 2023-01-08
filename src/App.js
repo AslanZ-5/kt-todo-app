@@ -1,196 +1,135 @@
 import "./App.css";
-import React, { Component } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Footer from "./Footer";
 import TaskList from "./TaskList";
 import NewTaskForm from "./NewTaskForm";
 
-export default class App extends Component {
-  genId = 100;
-
-  timerId = null;
-
-  state = {
-    todoData: [
-      {
-        title: "Completed task",
-        created: "2022-05-11T12:11:32",
-        done: false,
-        id: 1,
-        timer: 5458,
-      },
-      {
-        title: "Editing task",
-        created: "2021-11-11T04:32:33",
-        done: false,
-        id: 2,
-        timer: 456,
-      },
-      {
-        title: "Active task",
-        created: "2020-12-11T01:20:10",
-        done: false,
-        id: 3,
-        timer: 1020,
-      },
-    ],
-    filter: "all",
-    counting: 0,
-  };
-
-  componentDidMount() {
-    const timers = localStorage.getItem("timers");
-    const count = Number(localStorage.getItem("counting"));
-    this.setState({
-      counting: count,
-    });
-    if (count) {
-      this.timerId = setInterval(() => this.onCountDown(count), 1000);
-    }
-    if (timers) {
-      this.setState({
-        todoData: JSON.parse(timers),
-      });
-    }
-    window.addEventListener("beforeunload", () => {
-      const { counting, todoData } = this.state;
-      localStorage.setItem("counting", counting);
-      localStorage.setItem("timers", JSON.stringify(todoData));
-    });
+const FilterArr = (arr, filter) => {
+  switch (filter) {
+    case "all":
+      return arr;
+    case "active":
+      return arr.filter((item) => !item.done);
+    case "completed":
+      return arr.filter((item) => item.done);
+    default:
+      return arr;
   }
+};
+export default function App() {
+  let genId = 100;
+  let timerId = null;
+  const [todoData, setTodoData] = useState([
+    {
+      title: "Completed111 task",
+      created: "2022-05-11T12:11:32",
+      done: false,
+      id: 1,
+      timer: 5458,
+    },
+  ]);
+  const [filter, setFilter] = useState("all");
+  const [counting, setCounting] = useState(0);
 
-  componentDidUpdate() {
-    const { counting } = this.state;
-
-    clearInterval(this.timerId);
-    if (counting) {
-      this.timerId = setInterval(() => this.onCountDown(counting), 1000);
-    }
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timerId);
-  }
-
-  playTimer = (id) => {
-    this.setState({
-      counting: id,
-    });
-  };
-
-  stopTimer = () => {
-    this.setState({
-      counting: 0,
-    });
-  };
-
-  onFilter = (filter) =>
-    this.setState({
-      filter,
-    });
-
-  clearComleted = () => {
-    const { todoData } = this.state;
-    const newArr = todoData.filter((item) => !item.done);
-    return this.setState({
-      todoData: newArr,
-    });
-  };
-
-  onCountDown = (id) => {
-    const { todoData } = this.state;
+  const onCountDown = useCallback((id) => {
     const inx = todoData.findIndex((item) => item.id === id);
     const item = todoData[inx];
     const newItem = { ...item, timer: item.timer - 1 };
-    return this.setState({
-      todoData: [
-        ...todoData.slice(0, inx),
-        newItem,
-        ...todoData.slice(inx + 1),
-      ],
-    });
-  };
-
-  onDoneToggle = (id, e) => {
+    return setTodoData([
+      ...todoData.slice(0, inx),
+      newItem,
+      ...todoData.slice(inx + 1),
+    ]);
+  });
+  const clearComleted = useCallback(() => {
+    const newArr = todoData.filter((item) => !item.done);
+    return setTodoData(newArr);
+  });
+  const onDoneToggle = useCallback((id, e) => {
     e.preventDefault();
-    const { todoData } = this.state;
-    const inx = todoData.findIndex((item) => item.id === id);
-    const item = todoData[inx];
-    const newItem = { ...item, done: !item.done };
-    return this.setState({
-      todoData: [
-        ...todoData.slice(0, inx),
-        newItem,
-        ...todoData.slice(inx + 1),
-      ],
-    });
-  };
 
-  onDeleteItem = (id) => {
-    const { todoData } = this.state;
-    const inx = todoData.findIndex((item) => item.id === id);
-    return this.setState({
-      todoData: [...todoData.slice(0, inx), ...todoData.slice(inx + 1)],
+    return setTodoData((td) => {
+      const inx = td.findIndex((item) => item.id === id);
+      const item = td[inx];
+      return { ...item, done: !item.done };
     });
-  };
+  });
+  const onDeleteItem = useCallback((id) => {
+    const inx = todoData.findIndex((item) => item.id === id);
+    return setTodoData([...todoData.slice(0, inx), ...todoData.slice(inx + 1)]);
+  });
 
-  AddItem = (val, min, sec) => {
+  const AddItem = useCallback((val, min, sec) => {
     const time = Math.floor(Number(sec) + Number(min) * 60);
-    const { todoData } = this.state;
     const d = new Date();
     const newItem = {
       title: val,
       created: d.toISOString(),
       done: false,
-      id: this.genId++,
+      id: genId++,
       timer: time,
     };
 
-    return this.setState({
-      todoData: [...todoData, newItem],
-    });
-  };
-
-  FilterArr = (arr, filter) => {
-    switch (filter) {
-      case "all":
-        return arr;
-      case "active":
-        return arr.filter((item) => !item.done);
-      case "completed":
-        return arr.filter((item) => item.done);
-      default:
-        return arr;
+    return setTodoData([...todoData, newItem]);
+  });
+  useEffect(() => {
+    clearInterval(timerId);
+    if (counting) {
+      timerId = setInterval(() => {
+        onCountDown(counting);
+      }, 1000);
+    } else {
+      clearInterval(timerId);
     }
-  };
+    return () => clearInterval(timerId);
+  }, [counting, onCountDown]);
 
-  render() {
-    const { todoData, filter } = this.state;
-    const data = this.FilterArr(todoData, filter);
-
-    return (
-      <div className="App">
-        <section className="todoapp">
-          <header className="header">
-            <h1>todos-timer</h1>
-            <NewTaskForm AddItem={this.AddItem} />
-          </header>
-          <section className="main">
-            <TaskList
-              onDoneToggle={this.onDoneToggle}
-              data={data}
-              onDeleteItem={this.onDeleteItem}
-              playTimer={this.playTimer}
-              stopTimer={this.stopTimer}
-            />
-            <Footer
-              onFilter={this.onFilter}
-              filter={filter}
-              clearComleted={this.clearComleted}
-              data={data}
-            />
-          </section>
+  useEffect(() => {
+    const timers = localStorage.getItem("timers");
+    const count = Number(localStorage.getItem("counting"));
+    setCounting(count);
+    if (count) {
+      timerId = setInterval(() => onCountDown(count), 1000);
+    }
+    if (timers) {
+      setTodoData(JSON.parse(timers));
+    }
+    window.addEventListener("beforeunload", () => {
+      localStorage.setItem("counting", counting);
+      localStorage.setItem("timers", JSON.stringify(todoData));
+    });
+    return () => {
+      clearInterval(timerId);
+    };
+  }, []);
+  const data = FilterArr(todoData, filter);
+  return (
+    <div className="App">
+      <section className="todoapp">
+        <header className="header">
+          <h1>todos-timer</h1>
+          <NewTaskForm AddItem={AddItem} />
+        </header>
+        <section className="main">
+          <TaskList
+            onDoneToggle={onDoneToggle}
+            data={data}
+            onDeleteItem={onDeleteItem}
+            playTimer={(id) => {
+              setCounting(id);
+            }}
+            stopTimer={() => {
+              setCounting(0);
+            }}
+          />
+          <Footer
+            onFilter={(fl) => setFilter(fl)}
+            filter={filter}
+            clearComleted={clearComleted}
+            data={data}
+          />
         </section>
-      </div>
-    );
-  }
+      </section>
+    </div>
+  );
 }
