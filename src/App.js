@@ -35,7 +35,7 @@ export default function App() {
       timer: 456,
     },
     {
-      title: "Active task",
+      title: "Active task-",
       created: "2020-12-11T01:20:10",
       done: false,
       id: 3,
