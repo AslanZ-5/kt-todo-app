@@ -20,7 +20,6 @@ class NewTaskForm extends Component {
     return (
       <form
         onSubmit={(e) => {
-          console.log("sumbin");
           e.preventDefault();
 
           AddItem(val, min, sec);
