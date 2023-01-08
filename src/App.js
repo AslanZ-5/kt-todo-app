@@ -21,11 +21,25 @@ export default function App() {
   let timerId = null;
   const [todoData, setTodoData] = useState([
     {
-      title: "Completed111 task",
+      title: "Completed task",
       created: "2022-05-11T12:11:32",
       done: false,
       id: 1,
       timer: 5458,
+    },
+    {
+      title: "Editing task",
+      created: "2021-11-11T04:32:33",
+      done: false,
+      id: 2,
+      timer: 456,
+    },
+    {
+      title: "Active task",
+      created: "2020-12-11T01:20:10",
+      done: false,
+      id: 3,
+      timer: 1020,
     },
   ]);
   const [filter, setFilter] = useState("all");
